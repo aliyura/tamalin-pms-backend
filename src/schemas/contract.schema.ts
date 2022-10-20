@@ -20,11 +20,26 @@ export class Contract {
   @Prop({ required: true })
   vehicleId: string;
 
-  @Prop({ required: true, unique: true })
-  uuid: string;
+  @Prop({ required: true })
+  createdBy: string;
+
+  @Prop({ required: true })
+  createdById: string;
 
   @Prop({ required: true })
   status: string;
+
+  @Prop()
+  statusChangeHistory: any[];
+
+  @Prop()
+  lastStatusChangeDate: string;
+
+  @Prop()
+  lastUpdatedBy: string;
+
+  @Prop()
+  lastUpdatedById: string;
 }
 export const ContractSchema = SchemaFactory.createForClass(Contract).index({
   '$**': 'text',

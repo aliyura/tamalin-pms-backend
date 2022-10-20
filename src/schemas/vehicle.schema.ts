@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { VehicleStatusUpdateDto } from 'src/dtos/vehicle.dto';
 
 export type VehicleDocument = Vehicle & Document;
 
@@ -10,7 +9,7 @@ export class Vehicle {
   id: string;
 
   @Prop()
-  title: string;
+  model: string;
 
   @Prop()
   currentClientUuid: string;
@@ -24,8 +23,11 @@ export class Vehicle {
   @Prop({ required: true, unique: true })
   vuid: string;
 
-  @Prop({ required: true, unique: true })
-  addedBy: string;
+  @Prop({ required: true })
+  createdBy: string;
+
+  @Prop({ required: true })
+  createdById: string;
 
   @Prop({ required: true })
   plateNumber: string;
@@ -40,9 +42,6 @@ export class Vehicle {
   trackerSIM: string;
 
   @Prop()
-  statusChangeReason: VehicleStatusUpdateDto;
-
-  @Prop()
   contractHistory: any[];
 
   @Prop()
@@ -50,6 +49,12 @@ export class Vehicle {
 
   @Prop()
   lastStatusChangeDate: string;
+
+  @Prop()
+  lastUpdatedBy: string;
+
+  @Prop()
+  lastUpdatedById: string;
 
   @Prop({ required: true })
   status: string;

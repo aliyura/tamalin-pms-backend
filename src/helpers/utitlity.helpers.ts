@@ -75,6 +75,11 @@ export class Helpers {
     if (!nin.match(/^[0-9]+$/)) return false;
     return true;
   }
+
+  static validIdentity(identityNumber: string): boolean {
+    if (!identityNumber.match(/^[0-9]+$/)) return false;
+    return true;
+  }
   static async generateQR(value: string): Promise<ApiResponse> {
     try {
       console.log(value);

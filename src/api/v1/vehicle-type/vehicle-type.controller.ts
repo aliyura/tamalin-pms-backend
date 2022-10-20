@@ -14,12 +14,12 @@ import { AppGuard } from 'src/services/auth/app.guard';
 import { VehicleTypeService } from 'src/services/vehicle-type/vehicle-type.service';
 import { VehicleTypeDto } from '../../../dtos/vehicle-type.dto';
 
-@Controller('resource-type')
+@Controller('vehicle-type')
 export class VehicleTypeController {
   constructor(private readonly vehicleTypeService: VehicleTypeService) {}
   @UseGuards(AppGuard)
   @Post('/')
-  async createResourceType(
+  async createVehicleType(
     @Body() requestDto: VehicleTypeDto,
   ): Promise<ApiResponse> {
     const response = await this.vehicleTypeService.createVehicleType(
@@ -33,7 +33,7 @@ export class VehicleTypeController {
 
   @UseGuards(AppGuard)
   @Delete('/:id')
-  async deleteResourceType(@Param('id') id: string): Promise<ApiResponse> {
+  async deleteVehicleType(@Param('id') id: string): Promise<ApiResponse> {
     const response = await this.vehicleTypeService.deleteVehicleType(id);
     if (response.success) {
       return response;
@@ -42,7 +42,7 @@ export class VehicleTypeController {
   }
 
   @Get('/')
-  async allResourceType(): Promise<ApiResponse> {
+  async allVehicleType(): Promise<ApiResponse> {
     const response = await this.vehicleTypeService.allVehicleType();
     if (response.success) {
       return response;

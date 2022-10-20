@@ -23,6 +23,9 @@ import { VehicleType, VehicleTypeSchema } from './schemas/vehicle-type.schema';
 import { VehicleTypeController } from './api/v1/vehicle-type/vehicle-type.controller';
 import { VehicleTypeService } from 'src/services/vehicle-type/vehicle-type.service';
 import { VehicleService } from './services/vehicle/vehicle.service';
+import { ClientService } from './services/client/client.service';
+import { ClientController } from './api/v1/client/client.controller';
+import { VehicleController } from './api/v1/vehicle/vehicle.controller';
 
 @Module({
   imports: [
@@ -53,6 +56,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
     AppController,
     VehicleTypeController,
     FileController,
+    ClientController,
+    VehicleController,
   ],
   providers: [
     UserService,
@@ -63,6 +68,7 @@ import { VehicleService } from './services/vehicle/vehicle.service';
     FileService,
     VehicleTypeService,
     VehicleService,
+    ClientService,
   ],
 })
 export class AppModule {}

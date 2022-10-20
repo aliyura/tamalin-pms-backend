@@ -5,14 +5,9 @@ import { ApiResponse } from 'src/dtos/ApiResponse.dto';
 import { Helpers } from 'src/helpers';
 import { VehicleDocument, Vehicle } from '../../schemas/vehicle.schema';
 import { UserDocument, User } from 'src/schemas/user.schema';
-import { AuthUserDto } from '../../dtos/user.dto';
 import { Status, UserRole } from 'src/enums';
 import { Messages } from 'src/utils/messages/messages';
-import {
-  UpdateVehicleDto,
-  VehicleDto,
-  VehicleStatusUpdateDto,
-} from 'src/dtos/vehicle.dto';
+import { UpdateVehicleDto, VehicleDto } from 'src/dtos/vehicle.dto';
 
 @Injectable()
 export class VehicleService {
@@ -22,7 +17,7 @@ export class VehicleService {
   ) {}
 
   async createVehicle(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     requestDto: VehicleDto,
   ): Promise<ApiResponse> {
     try {
@@ -31,19 +26,10 @@ export class VehicleService {
       });
 
       if (vehicleExistByIdentity)
-        return Helpers.fail('Vehicle identity you provide is already exist');
-
-      const authenticatedUser = await this.user.findOne({
-        phoneNumber: authUser.username,
-      });
-
-      if (authenticatedUser)
-        return Helpers.fail('Authenticated User not found');
+        return Helpers.fail('Vehicle identity you provide already exist');
 
       if (authenticatedUser.role !== UserRole.ADMIN)
-        return Helpers.fail(
-          'Your are not authorized to perform this operation',
-        );
+        return Helpers.fail(Messages.NoPermission);
 
       const code = Helpers.getCode();
       const vehicleId = `ve${Helpers.getUniqueId()}`;
@@ -53,7 +39,8 @@ export class VehicleService {
         status: Status.ACTIVE,
         code: code,
         vuid: vehicleId,
-        addedBy: authenticatedUser.uuid,
+        createdBy: authenticatedUser.name,
+        createdById: authenticatedUser.uuid,
       } as any;
 
       const saved = await (await this.vehicle.create(request)).save();
@@ -65,27 +52,24 @@ export class VehicleService {
   }
 
   async updateVehicle(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     vehicleId: string,
     requestDto: UpdateVehicleDto,
   ): Promise<ApiResponse> {
     try {
-      const authenticatedUser = await this.user
-        .findOne({
-          $or: [{ phoneNumber: authUser.username }, { nin: authUser.username }],
-        })
-        .exec();
-
-      if (!authenticatedUser)
-        return Helpers.fail('Authenticated User not found');
-
       const existingVehicle = await this.vehicle.findOne({
         vuid: vehicleId,
       });
 
       if (!existingVehicle) return Helpers.fail('Vehicle not found');
 
-      await this.vehicle.updateOne({ vuid: vehicleId }, { $set: requestDto });
+      const request = {
+        ...requestDto,
+        lastUpdatedBy: authenticatedUser.name,
+        lastUpdatedById: authenticatedUser.uuid,
+      } as any;
+
+      await this.vehicle.updateOne({ vuid: vehicleId }, { $set: request });
       return Helpers.success(
         await this.vehicle.findOne({
           vuid: vehicleId,
@@ -98,19 +82,10 @@ export class VehicleService {
   }
 
   async deleteVehicle(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     vehicleId: string,
   ): Promise<ApiResponse> {
     try {
-      const authenticatedUser = await this.user
-        .findOne({
-          $or: [{ phoneNumber: authUser.username }, { nin: authUser.username }],
-        })
-        .exec();
-
-      if (!authenticatedUser)
-        return Helpers.fail('Authenticated User not found');
-
       const existingVehicle = await this.vehicle.findOne({
         vuid: vehicleId,
       });
@@ -131,21 +106,11 @@ export class VehicleService {
   }
 
   async updateVehicleStatus(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     vehicleId: string,
     status: any,
-    requestDto: VehicleStatusUpdateDto,
   ): Promise<ApiResponse> {
     try {
-      const authenticatedUser = await this.user
-        .findOne({
-          $or: [{ phoneNumber: authUser.username }, { nin: authUser.username }],
-        })
-        .exec();
-
-      if (!authenticatedUser)
-        return Helpers.fail(Messages.AuthenticatedUserNotFound);
-
       const existingVehicle = await this.vehicle.findOne({
         vuid: vehicleId,
       });
@@ -155,24 +120,19 @@ export class VehicleService {
         return Helpers.fail(Messages.NoPermission);
       }
 
-      if (!Object.values(Status).includes(status))
-        return Helpers.fail('Invalid vehicle status');
+      if (!Status[status]) return Helpers.fail('Invalid vehicle status');
 
-      const dateTime = new Date();
       const request = {
-        statusChangeDetail: {
-          ...requestDto,
-          date: dateTime.toISOString().slice(0, 10),
-        },
         status: status,
+        lastUpdatedBy: authenticatedUser.name,
+        lastUpdatedById: authenticatedUser.uuid,
       };
 
       const statusChangeHistory = {
-        ...requestDto,
         status: status,
         actionDate: new Date(),
-        actionBy: authenticatedUser.uuid,
-        actionByUser: authenticatedUser.name,
+        actionBy: authenticatedUser.name,
+        actionByUser: authenticatedUser.uuid,
       };
 
       await this.vehicle.updateOne(
@@ -197,11 +157,11 @@ export class VehicleService {
     }
   }
   async getAllVehicles(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     status: string,
   ): Promise<ApiResponse> {
     try {
-      const query = {} as any;
+      const query = { status: Status.ACTIVE } as any;
 
       if (
         status &&
@@ -221,7 +181,7 @@ export class VehicleService {
   }
 
   async searchVehicles(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     searchString: string,
   ): Promise<ApiResponse> {
     try {
@@ -237,8 +197,8 @@ export class VehicleService {
     }
   }
 
-  async getVehicleByRuid(
-    authUser: AuthUserDto,
+  async getVehicleByVuid(
+    authenticatedUser: User,
     vuid: string,
   ): Promise<ApiResponse> {
     try {
@@ -253,7 +213,7 @@ export class VehicleService {
   }
 
   async getVehicleByIdentityNumber(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     identityNumber: string,
   ): Promise<ApiResponse> {
     try {
@@ -268,7 +228,7 @@ export class VehicleService {
   }
 
   async getVehicleByCode(
-    authUser: AuthUserDto,
+    authenticatedUser: User,
     code: string,
   ): Promise<ApiResponse> {
     try {

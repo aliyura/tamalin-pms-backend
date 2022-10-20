@@ -1,7 +1,8 @@
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateClientDto {
-  @IsString() phoneNumber: string;
+  @IsOptional() name: string;
+  @IsOptional() phoneNumber: string;
 }
 
 export class ClientStatusUpdateDto {
@@ -13,6 +14,7 @@ export class ClientGuarantorDto {
   @IsString() name: string;
   @IsString() phoneNumber: string;
   @IsString() identity: string;
+  @IsString() identityType: string;
   @IsString() identityNumber: string;
   @IsString() photograph: string;
   @IsString() relationship: string;
@@ -32,6 +34,7 @@ export class ClientDto {
   @IsString() name: string;
   @IsString() phoneNumber: string;
   @IsString() identity: string;
+  @IsString() identityType: string;
   @IsString() identityNumber: string;
   @IsOptional() photograph: string;
   @IsOptional() guarantorDetail: ClientGuarantorDto;

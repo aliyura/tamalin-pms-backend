@@ -15,14 +15,23 @@ export class Client {
   @Prop({ required: true, unique: true })
   phoneNumber: string;
 
+  @Prop({ required: true })
+  createdBy: string;
+
+  @Prop({ required: true })
+  createdById: string;
+
   @Prop({ required: true, unique: true })
-  uuid: string;
+  cuid: string;
 
   @Prop({ required: true, unique: true })
   code: number;
 
   @Prop({ required: true })
   identity: string;
+
+  @Prop({ required: true })
+  identityType: string;
 
   @Prop({ required: true, unique: true })
   identityNumber: string;
@@ -32,6 +41,15 @@ export class Client {
 
   @Prop({ required: true })
   guarantorDetail: ClientGuarantorDto;
+
+  @Prop()
+  statusChangeHistory: any[];
+
+  @Prop()
+  lastUpdatedBy: string;
+
+  @Prop()
+  lastUpdatedById: string;
 
   @Prop({ required: true })
   status: string;

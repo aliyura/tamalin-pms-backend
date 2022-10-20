@@ -35,7 +35,6 @@ export class UserService {
       );
       if (alreadyExistByPhone) return Helpers.fail('Account already exist');
 
-      //encrypt password
       const hash = await this.cryptoService.encrypt(requestDto.password);
       requestDto.password = hash;
 
@@ -48,12 +47,12 @@ export class UserService {
 
       const request = {
         ...requestDto,
-        status: Status.INACTIVE,
+        status: Status.ACTIVE,
         code: Helpers.getCode(),
         uuid: `us${Helpers.getUniqueId()}`,
       } as any;
 
-      if (!requestDto.role) request.role = UserRole.USER;
+      if (!requestDto.role) request.role = UserRole.AGENT;
 
       const account = await (await this.user.create(request)).save();
       return Helpers.success(account);
@@ -93,8 +92,6 @@ export class UserService {
           { uuid: res.data.uuid },
           { $set: { password: hashedPassword } },
         );
-
-        this.cache.del(requestDto.username);
         return Helpers.success(res.data);
       } else {
         return Helpers.fail(Messages.UserNotFound);

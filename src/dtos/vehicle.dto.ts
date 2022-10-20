@@ -11,6 +11,7 @@ export class VehicleDto {
 export class UpdateVehicleDto {
   @IsOptional() plateNumber: string;
   @IsOptional() trackerIMEI: string;
+  @IsOptional() trackerSIM: string;
 }
 
 export class VehicleStatusUpdateDto {

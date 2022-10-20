@@ -1,6 +1,6 @@
 export enum UserRole {
   ADMIN = 'ADMIN',
-  USER = 'AGENT',
+  AGENT = 'AGENT',
 }
 export enum Status {
   ACTIVE = 'ACTIVE',
@@ -17,4 +17,10 @@ export enum InstalmentPeriod {
   QUARTERLY = 'QUARTERLY',
   HALFLY = 'HALFLY',
   YEARLY = 'YEARLY',
+}
+
+export enum IdentityType {
+  NIN = 'NIN',
+  DRIVERLICENSE = 'DRIVERLICENSE',
+  INTERNATIONALPASSPORT = 'INTERNATIONALPASSPORT',
 }

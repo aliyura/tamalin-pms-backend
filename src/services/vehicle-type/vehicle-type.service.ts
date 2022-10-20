@@ -31,6 +31,7 @@ export class VehicleTypeService {
       const request = {
         ...requestDto,
         status: Status.ACTIVE,
+        code: Helpers.getCode(),
         vtuid: `vt${Helpers.getUniqueId()}`,
       } as any;
 
@@ -71,7 +72,7 @@ export class VehicleTypeService {
   async allVehicleType(): Promise<ApiResponse> {
     try {
       const req = await this.vehicleType.find();
-      if (req) {
+      if (req.length > 0) {
         return Helpers.success(req);
       }
       return Helpers.fail(Messages.VehicleTypeNotFound);

@@ -171,7 +171,7 @@ export class VehicleController {
     return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
   }
   @UseGuards(AppGuard)
-  @Get('/:vuid')
+  @Get('/detail/:vuid')
   async getVehicleByRuid(
     @Headers('Authorization') token: string,
     @Param('vuid') vuid: string,

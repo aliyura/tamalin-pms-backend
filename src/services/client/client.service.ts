@@ -166,14 +166,14 @@ export class ClientService {
     }
   }
 
-  async findAllClients(page: number, status: string): Promise<ApiResponse> {
+  async findAllClients(page: number): Promise<ApiResponse> {
     try {
       const size = 20;
       const skip = page || 0;
 
-      const count = await this.client.count(status ? { status } : {});
+      const count = await this.client.count({});
       const result = await this.client
-        .find(status ? { status } : {})
+        .find({})
         .skip(skip * size)
         .limit(size);
       if (result) {

@@ -114,7 +114,7 @@ export class ClientController {
   }
 
   @UseGuards(AppGuard)
-  @Get('/:cuid')
+  @Get('/detail/:cuid')
   async getClient(
     @Headers('Authorization') token: string,
     @Param('cuid') cuid: string,
@@ -137,7 +137,6 @@ export class ClientController {
   @Get('/list')
   async getAllClients(
     @Query('page') page: number,
-    @Query('status') status: string,
     @Headers('Authorization') token: string,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
@@ -149,7 +148,7 @@ export class ClientController {
       );
 
     if (authUserResponse.data.role === UserRole.ADMIN) {
-      const clients = await this.clientService.findAllClients(page, status);
+      const clients = await this.clientService.findAllClients(page);
       if (clients.success) return clients;
       return Helpers.failedHttpResponse(
         clients.message,

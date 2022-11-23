@@ -26,6 +26,8 @@ import { VehicleService } from './services/vehicle/vehicle.service';
 import { ClientService } from './services/client/client.service';
 import { ClientController } from './api/v1/client/client.controller';
 import { VehicleController } from './api/v1/vehicle/vehicle.controller';
+import { ContractController } from './api/v1/contract/contract.controller';
+import { ContractService } from './services/contract/contract.service';
 
 @Module({
   imports: [
@@ -58,6 +60,7 @@ import { VehicleController } from './api/v1/vehicle/vehicle.controller';
     FileController,
     ClientController,
     VehicleController,
+    ContractController,
   ],
   providers: [
     UserService,
@@ -69,6 +72,7 @@ import { VehicleController } from './api/v1/vehicle/vehicle.controller';
     VehicleTypeService,
     VehicleService,
     ClientService,
+    ContractService,
   ],
 })
 export class AppModule {}

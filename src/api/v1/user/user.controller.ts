@@ -21,7 +21,7 @@ import { UserRole } from '../../../enums/enums';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @UseGuards(AppGuard)
+  // @UseGuards(AppGuard)
   @Post('/')
   async createUser(@Body() requestDto: UserDto): Promise<ApiResponse> {
     const response = await this.userService.createUser(requestDto);

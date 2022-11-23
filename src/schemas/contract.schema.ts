@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { ContractClientDto, ContractVehicleDto } from '../dtos/contract.dto';
 
 export type ContractDocument = Contract & Document;
 
@@ -15,10 +16,16 @@ export class Contract {
   code: number;
 
   @Prop({ required: true })
-  clientId: string;
+  client: ContractClientDto;
 
   @Prop({ required: true })
-  vehicleId: string;
+  vehicle: ContractVehicleDto;
+
+  @Prop({ required: true, default: 0 })
+  amount: number;
+
+  @Prop({ required: true, default: 0 })
+  discount: number;
 
   @Prop({ required: true })
   createdBy: string;
@@ -27,10 +34,19 @@ export class Contract {
   createdById: string;
 
   @Prop({ required: true })
+  startDate: string;
+
+  @Prop({ required: true })
+  endDate: string;
+
+  @Prop({ required: true })
   status: string;
 
   @Prop()
   statusChangeHistory: any[];
+
+  @Prop()
+  updateHistory: any[];
 
   @Prop()
   lastStatusChangeDate: string;

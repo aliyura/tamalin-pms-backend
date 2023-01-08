@@ -1,46 +1,45 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ContractClientDto, ContractVehicleDto } from '../dtos/contract.dto';
 
-export type ContractDocument = Contract & Document;
+export type PaymentDocument = Payment & Document;
 
 @Schema({ timestamps: true })
-export class Contract {
+export class Payment {
   @Prop({ type: Types.ObjectId })
   id: string;
 
   @Prop({ required: true, unique: true })
-  cuid: string;
+  puid: string;
 
   @Prop({ required: true, unique: true })
   code: number;
 
   @Prop({ required: true })
-  client: ContractClientDto;
+  paymentRef: string;
+
+  @Prop()
+  remark: string;
 
   @Prop({ required: true })
-  vehicle: ContractVehicleDto;
+  clientId: string;
+
+  @Prop({ required: true })
+  client: string;
+
+  @Prop({ required: true })
+  vehicleId: string;
+
+  @Prop({ required: true })
+  contractId: string;
 
   @Prop({ required: true, default: 0 })
   amount: number;
-
-  @Prop({ required: true, default: 0 })
-  balance: number;
-
-  @Prop({ required: true, default: 0 })
-  discount: number;
 
   @Prop({ required: true })
   createdBy: string;
 
   @Prop({ required: true })
   createdById: string;
-
-  @Prop({ required: true })
-  startDate: string;
-
-  @Prop({ required: true })
-  endDate: string;
 
   @Prop({ required: true })
   status: string;
@@ -60,6 +59,6 @@ export class Contract {
   @Prop()
   lastUpdatedById: string;
 }
-export const ContractSchema = SchemaFactory.createForClass(Contract).index({
+export const PaymentSchema = SchemaFactory.createForClass(Payment).index({
   '$**': 'text',
 });

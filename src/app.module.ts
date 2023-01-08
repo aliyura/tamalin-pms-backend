@@ -28,6 +28,11 @@ import { ClientController } from './api/v1/client/client.controller';
 import { VehicleController } from './api/v1/vehicle/vehicle.controller';
 import { ContractController } from './api/v1/contract/contract.controller';
 import { ContractService } from './services/contract/contract.service';
+import { Payment, PaymentSchema } from './schemas/payment.schema';
+import { PaymentService } from './services/payment/payment.service';
+import { PaymentController } from './api/v1/payment/payment.controller';
+import { ReportController } from './api/v1/report/report.controller';
+import { ReportService } from './services/report/report.service';
 
 @Module({
   imports: [
@@ -43,6 +48,7 @@ import { ContractService } from './services/contract/contract.service';
     MongooseModule.forFeature([
       { name: Contract.name, schema: ContractSchema },
     ]),
+    MongooseModule.forFeature([{ name: Payment.name, schema: PaymentSchema }]),
     MongooseModule.forFeature([
       { name: VehicleType.name, schema: VehicleTypeSchema },
     ]),
@@ -61,6 +67,8 @@ import { ContractService } from './services/contract/contract.service';
     ClientController,
     VehicleController,
     ContractController,
+    PaymentController,
+    ReportController,
   ],
   providers: [
     UserService,
@@ -73,6 +81,8 @@ import { ContractService } from './services/contract/contract.service';
     VehicleService,
     ClientService,
     ContractService,
+    PaymentService,
+    ReportService,
   ],
 })
 export class AppModule {}

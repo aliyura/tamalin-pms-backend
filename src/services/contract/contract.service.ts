@@ -56,6 +56,9 @@ export class ContractService {
       const code = Helpers.getCode();
       const contractId = `con${Helpers.getUniqueId()}`;
 
+      if (!requestDto.discount || !Number(requestDto.discount))
+        requestDto.discount = 0;
+
       const request = {
         status: Status.ACTIVE,
         client: {
@@ -69,6 +72,7 @@ export class ContractService {
           identityNumber: vehicle.identityNumber,
         },
         amount: requestDto.amount,
+        balance: Number(requestDto.amount) - Number(requestDto.discount),
         discount: requestDto.discount,
         startDate: requestDto.startDate,
         endDate: requestDto.startDate,
@@ -287,21 +291,33 @@ export class ContractService {
       return Helpers.fail(Messages.Exception);
     }
   }
-  async getAllContracts(
+  async findAllContracts(
+    page: number,
     authenticatedUser: User,
-    status: string,
   ): Promise<ApiResponse> {
     try {
-      const query = { status: Status.ACTIVE } as any;
-      if (
-        status &&
-        Object.values(Status).includes(status.toUpperCase() as Status)
-      ) {
-        query.status = status.toUpperCase();
-      }
+      const size = 20;
+      const skip = page || 0;
 
-      const contracts = await this.contract.find(query);
-      if (contracts && contracts.length > 0) return Helpers.success(contracts);
+      const count = await this.contract.count({});
+      const result = await this.contract
+        .find({})
+        .skip(skip * size)
+        .limit(size);
+      if (result) {
+        const totalPages = Math.round(count / size);
+        return Helpers.success({
+          page: result,
+          size: size,
+          currentPage: Number(skip),
+          totalPages:
+            totalPages > 0
+              ? totalPages
+              : count > 0 && result.length > 0
+              ? 1
+              : 0,
+        });
+      }
 
       return Helpers.fail('Contract not found');
     } catch (ex) {
@@ -311,16 +327,38 @@ export class ContractService {
   }
 
   async searchContracts(
-    authenticatedUser: User,
+    page: number,
     searchString: string,
+    authenticatedUser: User,
   ): Promise<ApiResponse> {
     try {
-      const contracts = await this.contract.find({
+      const size = 20;
+      const skip = page || 0;
+
+      const count = await this.contract.count({
         $text: { $search: searchString },
       });
-      if (contracts && contracts.length > 0) return Helpers.success(contracts);
+      const result = await this.contract
+        .find({ $text: { $search: searchString } })
+        .skip(skip * size)
+        .limit(size);
 
-      return Helpers.fail('Search not found');
+      if (result) {
+        const totalPages = Math.round(count / size);
+        return Helpers.success({
+          page: result,
+          size: size,
+          currentPage: Number(skip),
+          totalPages:
+            totalPages > 0
+              ? totalPages
+              : count > 0 && result.length > 0
+              ? 1
+              : 0,
+        });
+      }
+
+      return Helpers.fail('Contract not found');
     } catch (ex) {
       console.log(Messages.ErrorOccurred, ex);
       return Helpers.fail(Messages.Exception);

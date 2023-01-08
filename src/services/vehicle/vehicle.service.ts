@@ -156,24 +156,35 @@ export class VehicleService {
       return Helpers.fail(Messages.Exception);
     }
   }
-  async getAllVehicles(
+  async findAllVehicles(
+    page: number,
     authenticatedUser: User,
-    status: string,
   ): Promise<ApiResponse> {
     try {
-      const query = { status: Status.ACTIVE } as any;
+      const size = 20;
+      const skip = page || 0;
 
-      if (
-        status &&
-        Object.values(Status).includes(status.toUpperCase() as Status)
-      ) {
-        query.status = status.toUpperCase();
+      const count = await this.vehicle.count({});
+      const result = await this.vehicle
+        .find({})
+        .skip(skip * size)
+        .limit(size);
+      if (result) {
+        const totalPages = Math.round(count / size);
+        return Helpers.success({
+          page: result,
+          size: size,
+          currentPage: Number(skip),
+          totalPages:
+            totalPages > 0
+              ? totalPages
+              : count > 0 && result.length > 0
+              ? 1
+              : 0,
+        });
       }
 
-      const vehicles = await this.vehicle.find(query);
-      if (vehicles && vehicles.length > 0) return Helpers.success(vehicles);
-
-      return Helpers.fail(Messages.VehicleNotFound);
+      return Helpers.fail('Vehicle not found');
     } catch (ex) {
       console.log(Messages.ErrorOccurred, ex);
       return Helpers.fail(Messages.Exception);
@@ -181,16 +192,38 @@ export class VehicleService {
   }
 
   async searchVehicles(
-    authenticatedUser: User,
+    page: number,
     searchString: string,
+    authenticatedUser: User,
   ): Promise<ApiResponse> {
     try {
-      const vehicles = await this.vehicle.find({
+      const size = 20;
+      const skip = page || 0;
+
+      const count = await this.vehicle.count({
         $text: { $search: searchString },
       });
-      if (vehicles && vehicles.length > 0) return Helpers.success(vehicles);
+      const result = await this.vehicle
+        .find({ $text: { $search: searchString } })
+        .skip(skip * size)
+        .limit(size);
 
-      return Helpers.fail(Messages.VehicleNotFound);
+      if (result) {
+        const totalPages = Math.round(count / size);
+        return Helpers.success({
+          page: result,
+          size: size,
+          currentPage: Number(skip),
+          totalPages:
+            totalPages > 0
+              ? totalPages
+              : count > 0 && result.length > 0
+              ? 1
+              : 0,
+        });
+      }
+
+      return Helpers.fail('Vehicle not found');
     } catch (ex) {
       console.log(Messages.ErrorOccurred, ex);
       return Helpers.fail(Messages.Exception);

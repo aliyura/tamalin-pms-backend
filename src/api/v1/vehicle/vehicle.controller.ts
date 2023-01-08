@@ -17,6 +17,8 @@ import { AppGuard } from 'src/services/auth/app.guard';
 import { UpdateVehicleDto, VehicleDto } from '../../../dtos/vehicle.dto';
 import { VehicleService } from 'src/services/vehicle/vehicle.service';
 import { UserService } from '../../../services/user/user.service';
+import { Messages } from '../../../utils/messages/messages';
+import { UserRole } from '../../../enums/enums';
 
 @Controller('vehicle')
 export class VehicleController {
@@ -125,8 +127,8 @@ export class VehicleController {
 
   @UseGuards(AppGuard)
   @Get('/list')
-  async getVehicles(
-    @Query('status') status: string,
+  async getAllContracts(
+    @Query('page') page: number,
     @Headers('Authorization') token: string,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
@@ -137,20 +139,26 @@ export class VehicleController {
         HttpStatus.UNAUTHORIZED,
       );
 
-    const response = await this.vehicleService.getAllVehicles(
-      authUserResponse.data,
-      status,
-    );
-    if (response.success) {
-      return response;
+    if (authUserResponse.data.role === UserRole.ADMIN) {
+      const result = await this.vehicleService.findAllVehicles(
+        page,
+        authUserResponse.data,
+      );
+      if (result.success) return result;
+      return Helpers.failedHttpResponse(result.message, HttpStatus.BAD_REQUEST);
+    } else {
+      return Helpers.failedHttpResponse(
+        Messages.NoPermission,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
   }
 
   @UseGuards(AppGuard)
   @Get('/search')
-  async searchMyVehicles(
-    @Query('q') searchString: string,
+  async searchContracts(
+    @Query('page') page: number,
+    @Query('q') searchText: string,
     @Headers('Authorization') token: string,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
@@ -161,14 +169,20 @@ export class VehicleController {
         HttpStatus.UNAUTHORIZED,
       );
 
-    const response = await this.vehicleService.searchVehicles(
-      authUserResponse.data,
-      searchString,
-    );
-    if (response.success) {
-      return response;
+    if (authUserResponse.data.role === UserRole.ADMIN) {
+      const result = await this.vehicleService.searchVehicles(
+        page,
+        searchText,
+        authUserResponse.data,
+      );
+      if (result.success) return result;
+      return Helpers.failedHttpResponse(result.message, HttpStatus.BAD_REQUEST);
+    } else {
+      return Helpers.failedHttpResponse(
+        Messages.NoPermission,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
   }
   @UseGuards(AppGuard)
   @Get('/detail/:vuid')

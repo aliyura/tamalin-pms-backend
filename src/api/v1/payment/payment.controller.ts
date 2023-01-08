@@ -7,7 +7,6 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,23 +14,23 @@ import { ApiResponse } from 'src/dtos/ApiResponse.dto';
 import { Helpers } from 'src/helpers';
 import { AppGuard } from 'src/services/auth/app.guard';
 import { UserService } from '../../../services/user/user.service';
-import { ContractDto, UpdateContractDto } from '../../../dtos/contract.dto';
-import { ContractService } from '../../../services/contract/contract.service';
+import { PaymentDto } from '../../../dtos/payment.dto';
+import { PaymentService } from '../../../services/payment/payment.service';
+import { UserRole } from '../../../enums/enums';
 import { Messages } from '../../../utils/messages/messages';
-import { UserRole } from 'src/enums';
 
-@Controller('contract')
-export class ContractController {
+@Controller('payment')
+export class PaymentController {
   constructor(
     private userService: UserService,
-    private contractService: ContractService,
+    private paymentService: PaymentService,
   ) {}
 
   @UseGuards(AppGuard)
   @Post('/')
-  async createContract(
+  async createPayment(
     @Headers('Authorization') token: string,
-    @Body() requestDto: ContractDto,
+    @Body() requestDto: PaymentDto,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
     const authUserResponse = await this.userService.findByUserToken(authToken);
@@ -41,7 +40,7 @@ export class ContractController {
         HttpStatus.UNAUTHORIZED,
       );
 
-    const response = await this.contractService.createContract(
+    const response = await this.paymentService.addPayment(
       authUserResponse.data,
       requestDto,
     );
@@ -52,11 +51,10 @@ export class ContractController {
   }
 
   @UseGuards(AppGuard)
-  @Put('/:cuid')
-  async updateVehicle(
+  @Delete('/:puid')
+  async deletePayment(
     @Headers('Authorization') token: string,
-    @Param('cuid') cuid: string,
-    @Body() requestDto: UpdateContractDto,
+    @Param('puid') puid: string,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
     const authUserResponse = await this.userService.findByUserToken(authToken);
@@ -65,59 +63,9 @@ export class ContractController {
         authUserResponse.message,
         HttpStatus.UNAUTHORIZED,
       );
-    const response = await this.contractService.updateContract(
+    const response = await this.paymentService.cancelPayment(
       authUserResponse.data,
-      cuid,
-      requestDto,
-    );
-    if (response.success) {
-      return response;
-    }
-    return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
-  }
-
-  @UseGuards(AppGuard)
-  @Delete('/:cuid')
-  async deleteVehicle(
-    @Headers('Authorization') token: string,
-    @Param('cuid') cuid: string,
-  ): Promise<ApiResponse> {
-    const authToken = token.substring(7);
-    const authUserResponse = await this.userService.findByUserToken(authToken);
-    if (!authUserResponse.success)
-      return Helpers.failedHttpResponse(
-        authUserResponse.message,
-        HttpStatus.UNAUTHORIZED,
-      );
-    const response = await this.contractService.deleteContract(
-      authUserResponse.data,
-      cuid,
-    );
-    if (response.success) {
-      return response;
-    }
-    return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
-  }
-
-  @UseGuards(AppGuard)
-  @Put('/status/change/:cuid')
-  async updateVehicleStatus(
-    @Headers('Authorization') token: string,
-    @Param('cuid') cuid: string,
-    @Query('status') status: string,
-  ): Promise<ApiResponse> {
-    const authToken = token.substring(7);
-    const authUserResponse = await this.userService.findByUserToken(authToken);
-    if (!authUserResponse.success)
-      return Helpers.failedHttpResponse(
-        authUserResponse.message,
-        HttpStatus.UNAUTHORIZED,
-      );
-
-    const response = await this.contractService.updateContractStatus(
-      authUserResponse.data,
-      cuid,
-      status,
+      puid,
     );
     if (response.success) {
       return response;
@@ -127,7 +75,7 @@ export class ContractController {
 
   @UseGuards(AppGuard)
   @Get('/list')
-  async getAllContracts(
+  async getAllPayments(
     @Query('page') page: number,
     @Headers('Authorization') token: string,
   ): Promise<ApiResponse> {
@@ -140,7 +88,7 @@ export class ContractController {
       );
 
     if (authUserResponse.data.role === UserRole.ADMIN) {
-      const result = await this.contractService.findAllContracts(
+      const result = await this.paymentService.findAllPayments(
         page,
         authUserResponse.data,
       );
@@ -156,7 +104,7 @@ export class ContractController {
 
   @UseGuards(AppGuard)
   @Get('/search')
-  async searchContracts(
+  async searchPayments(
     @Query('page') page: number,
     @Query('q') searchText: string,
     @Headers('Authorization') token: string,
@@ -170,7 +118,7 @@ export class ContractController {
       );
 
     if (authUserResponse.data.role === UserRole.ADMIN) {
-      const result = await this.contractService.searchContracts(
+      const result = await this.paymentService.searchPayments(
         page,
         searchText,
         authUserResponse.data,
@@ -183,28 +131,5 @@ export class ContractController {
         HttpStatus.UNAUTHORIZED,
       );
     }
-  }
-  @UseGuards(AppGuard)
-  @Get('/detail/:cuid')
-  async getVehicleByRuid(
-    @Headers('Authorization') token: string,
-    @Param('cuid') cuid: string,
-  ): Promise<ApiResponse> {
-    const authToken = token.substring(7);
-    const authUserResponse = await this.userService.findByUserToken(authToken);
-    if (!authUserResponse.success)
-      return Helpers.failedHttpResponse(
-        authUserResponse.message,
-        HttpStatus.UNAUTHORIZED,
-      );
-
-    const response = await this.contractService.getContractByCuid(
-      authUserResponse.data,
-      cuid,
-    );
-    if (response.success) {
-      return response;
-    }
-    return Helpers.failedHttpResponse(response.message, HttpStatus.BAD_REQUEST);
   }
 }

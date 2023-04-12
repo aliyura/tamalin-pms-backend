@@ -30,7 +30,7 @@ export class PaymentService {
         return Helpers.fail(Messages.NoPermission);
 
       const contract = await this.contract.findOne({
-        cuid: requestDto.contractId,
+        code: requestDto.contractId,
       });
       if (!contract) return Helpers.fail('Contract not found');
 
@@ -60,21 +60,23 @@ export class PaymentService {
       const request = {
         puid: paymentId,
         code: code,
-        status: Status.SUCCESSFUL,
+        status: Status.PENDING,
         paymentRef: requestDto.paymentRef,
         amount: requestDto.amount,
         clientId: client.cuid,
         client: client.name,
         vehicleId: vehicle.vuid,
         contractId: contract.cuid,
+        contractCode: contract.code,
         createdBy: authenticatedUser.name,
         createdById: authenticatedUser.uuid,
-      } as Payment;
+      } as any;
 
       const contractStatus = newBalance <= 0 ? Status.COMPLETED : Status.ACTIVE;
       const contractUpdate = {
         status: contractStatus,
         balance: newBalance,
+        clearedAmount: contract.clearedAmount + requestDto.amount,
         lastUpdatedBy: authenticatedUser.name,
         lastUpdatedById: authenticatedUser.uuid,
       } as any;

@@ -25,6 +25,9 @@ export class Contract {
   amount: number;
 
   @Prop({ required: true, default: 0 })
+  clearedAmount: number;
+
+  @Prop({ required: true, default: 0 })
   balance: number;
 
   @Prop({ required: true, default: 0 })

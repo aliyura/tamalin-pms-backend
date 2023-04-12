@@ -73,6 +73,7 @@ export class ContractService {
         },
         amount: requestDto.amount,
         balance: Number(requestDto.amount) - Number(requestDto.discount),
+        clearedAmount: 0,
         discount: requestDto.discount,
         startDate: requestDto.startDate,
         endDate: requestDto.startDate,

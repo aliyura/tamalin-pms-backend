@@ -171,14 +171,21 @@ export class UserService {
     }
   }
 
-  async findAllUsers(page: number, status: string): Promise<ApiResponse> {
+  async findAllUsers(
+    page: number,
+    status: string,
+    role: string,
+  ): Promise<ApiResponse> {
     try {
       const size = 20;
       const skip = page || 0;
 
-      const count = await this.user.count(status ? { status } : {});
+      const query = status ? { status } : ({} as any);
+      if (role) query.role = role;
+
+      const count = await this.user.count(query);
       const result = await this.user
-        .find(status ? { status } : {})
+        .find(query)
         .skip(skip * size)
         .limit(size);
 

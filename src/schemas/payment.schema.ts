@@ -14,7 +14,7 @@ export class Payment {
   @Prop({ required: true, unique: true })
   code: number;
 
-  @Prop({ required: true })
+  @Prop()
   paymentRef: string;
 
   @Prop()
@@ -22,6 +22,9 @@ export class Payment {
 
   @Prop({ required: true })
   clientId: string;
+
+  @Prop()
+  paymentMode: string;
 
   @Prop({ required: true })
   client: string;
@@ -31,6 +34,9 @@ export class Payment {
 
   @Prop({ required: true })
   contractId: string;
+
+  @Prop({ required: true })
+  contractCode: string;
 
   @Prop({ required: true, default: 0 })
   amount: number;

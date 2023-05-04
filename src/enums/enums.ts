@@ -10,6 +10,7 @@ export enum Status {
   FAILED = 'FAILED',
   SUCCESSFUL = 'SUCCESSFUL',
   COMPLETED = 'COMPLETED',
+  PENDING = 'PENDING',
 }
 export enum InstalmentPeriod {
   DAILY = 'DAILY',

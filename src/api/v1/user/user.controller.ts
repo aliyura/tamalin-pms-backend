@@ -91,6 +91,7 @@ export class UserController {
   async getAllUsers(
     @Query('page') page: number,
     @Query('status') status: string,
+    @Query('role') role: string,
     @Headers('Authorization') token: string,
   ): Promise<ApiResponse> {
     const authToken = token.substring(7);
@@ -102,7 +103,7 @@ export class UserController {
       );
 
     if (userResponse.data.role === UserRole.ADMIN) {
-      const users = await this.userService.findAllUsers(page, status);
+      const users = await this.userService.findAllUsers(page, status, role);
       if (users.success) return users;
       return Helpers.failedHttpResponse(users.message, HttpStatus.BAD_REQUEST);
     } else {

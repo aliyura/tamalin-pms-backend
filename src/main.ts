@@ -48,8 +48,18 @@ async function bootstrap() {
   //TODO: there is a load balancer or reverse proxy. Express may need to be configured to trust the headers set by the proxy in order to get the correct IP for the end user
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
-  app.enableCors();
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+    next();
+  });
 
+  app.enableCors({
+    allowedHeaders: '*',
+    origin: '*',
+  });
+  
   try {
     // quit on ctrl-c when running docker in terminal
     process.on('SIGINT', () => {
